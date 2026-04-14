@@ -36,7 +36,7 @@ def lambda_handler(event, context):
     return {
         "statusCode": 200,
         "body": json.dumps({
-            "message": "hello world version 1.1",
+            "message": "CI/CD for CloudOps deloy with SAM CLI",
             # "location": ip.text.replace("\n", "")
         }),
     }
