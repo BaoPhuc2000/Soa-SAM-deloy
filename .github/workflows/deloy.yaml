@@ -2,9 +2,8 @@ name: SAM Deploy
 
 on:
   push:
-    paths:
-      - 'soa-sam-app/hello_world/**'
-      - 'soa-sam-app/template.yaml'  # Chỉ trigger khi code Lambda thay đổi
+    branches:
+      - main
 
 permissions:
   id-token: write   # Bắt buộc: cho phép GitHub request OIDC token
