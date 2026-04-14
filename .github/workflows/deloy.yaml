@@ -2,8 +2,9 @@ name: SAM Deploy
 
 on:
   push:
-    branches:
-      - main
+    paths:
+      - 'soa-sam-app/hello_world/**'
+      - 'soa-sam-app/template.yaml'
 
 permissions:
   id-token: write   # Bắt buộc: cho phép GitHub request OIDC token
@@ -30,9 +31,11 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: SAM Build
+        working-directory: soa-sam-app
         run: sam build
 
       - name: SAM Deploy
+        working-directory: soa-sam-app
         run: |
           sam deploy \
             --no-confirm-changeset \
