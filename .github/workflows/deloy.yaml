@@ -1,42 +1,39 @@
-name: SAM Deploy
+name: Apiapp auto build
 
 on:
   push:
     paths:
-      - 'hello_world/**' # Chỉ trigger khi code Lambda thay đổi
+      - 'hello_world/**' # Kích hoạt workflow khi có thay đổi trong thư mục hello_world
 
 permissions:
-  id-token: write   # Bắt buộc: cho phép GitHub request OIDC token
-  contents: read     # Cho phép checkout code
+  id-token: write # Quyền ghi token để xác thực với AWS
+  contents: read # Quyền đọc nội dung repository
+  repository-projects: write # Quyền ghi vào projects của repository
 
 jobs:
   deploy-sam:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # Chạy job trên máy Ubuntu mới nhất
 
     steps:
+      # Lấy mã nguồn từ repository
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Lấy toàn bộ lịch sử commit để đảm bảo có commit hash chính xác
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+      - uses: aws-actions/setup-sam@v2
 
-      - name: Setup SAM CLI
-        uses: aws-actions/setup-sam@v2
-
-      - name: Configure AWS Credentials (OIDC)
+      # Cấu hình thông tin xác thực AWS
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }} # Vai trò AWS để xác thực
+          aws-region: ${{ secrets.AWS_REGION }} # Vùng AWS được chỉ định
 
       - name: SAM Build
         run: sam build
 
       - name: SAM Deploy
-        run: |
-          sam deploy \
-            --no-confirm-changeset \
-            --no-fail-on-empty-changeset \
-            --stack-name SOA-Stack-Serverless-Application \
-            --capabilities CAPABILITY_IAM \
-            --region ${{ secrets.AWS_REGION }}
+        run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name SOA-Stack-Serverless-Application --capabilities CAPABILITY_IAM --region us-east-1
